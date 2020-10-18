@@ -25,15 +25,23 @@ class MainActivity : AppCompatActivity() {
         }
         val xAxis: Float = event!!.getAxisValue(MotionEvent.AXIS_X)
         val yAxis: Float = event.getAxisValue(MotionEvent.AXIS_Y)
-        addLog("x: ${round(xAxis * 10)}, y: ${round(yAxis * 10)}")
+        addLog("x: ${round(xAxis * 10) / 10f}, y: ${round(yAxis * 10) / 10f}")
         return true
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (!dpad.isDpadDevice(event)) {
+        if (!dpad.isDpadDevice(event) || event!!.repeatCount != 0) {
             return super.onKeyDown(keyCode, event)
         }
-        addLog(KeyEvent.keyCodeToString(keyCode))
+        addLog("Down: ${KeyEvent.keyCodeToString(keyCode)}")
+        return true
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (!dpad.isDpadDevice(event) || event!!.repeatCount != 0) {
+            return super.onKeyUp(keyCode, event)
+        }
+        addLog("Up: ${KeyEvent.keyCodeToString(keyCode)}")
         return true
     }
 
