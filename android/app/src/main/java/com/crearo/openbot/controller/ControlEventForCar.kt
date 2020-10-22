@@ -20,7 +20,7 @@ data class ControlEventForCar(var left: Float, var right: Float) {
     }
 
     private fun mapToFirmware(value: Float): Float {
-        return value * 120f
+        return value * -120f
     }
 
 }
