@@ -12,14 +12,27 @@ import com.crearo.openbot.controller.DpadState
 class MainActivity : AppCompatActivity() {
 
     private val dpad = Dpad()
-    private lateinit var textView: TextView
+    private lateinit var tvInfo: TextView
+    private lateinit var tvConnected: TextView
     private val dpadState = DpadState(0f, 0f, 0f, 0f)
     private val controlEventForCar = ControlEventForCar(0f, 0f)
+    private val usbConnection = UsbConnection(applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        textView = findViewById(R.id.textview)
+        tvInfo = findViewById(R.id.tv_info)
+        tvConnected = findViewById(R.id.tv_connected)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        usbConnection.startUsbConnection()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        usbConnection.stopUsbConnection()
     }
 
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
@@ -61,6 +74,6 @@ class MainActivity : AppCompatActivity() {
     private fun onDpadEvent(dpadState: DpadState) {
         // textView.text = "$dpadState\n${textView.text}"
         controlEventForCar.onDpadEvent(dpadState)
-        textView.text = "$controlEventForCar"
+        tvInfo.text = "$controlEventForCar"
     }
 }
