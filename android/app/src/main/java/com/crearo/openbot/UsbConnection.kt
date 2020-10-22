@@ -32,6 +32,7 @@ class UsbConnection(val context: Context) {
     private var busy = false
     private val baudRate = 115200
     private var buffer: String = ""
+    private var registered = false
 
     private val usbPermissionReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -76,14 +77,8 @@ class UsbConnection(val context: Context) {
         }
     }
 
-
-    fun startUsbConnection(): Boolean {
-        val usbPermissionFilter = IntentFilter(ACTION_USB_PERMISSION)
-        localBroadcastManager.registerReceiver(usbPermissionReceiver, usbPermissionFilter)
-        // Detach events are sent as a system-wide broadcast
-        val usbDetachedFilter = IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        localBroadcastManager.registerReceiver(usbDetachedReceiver, usbDetachedFilter)
-
+    private fun startUsbConnection(): Boolean {
+        startListener()
         val connectedDevices: Map<String, UsbDevice> = usbManager.deviceList
         if (connectedDevices.isNotEmpty()) {
             for (usbDevice in connectedDevices.values) {
@@ -139,8 +134,24 @@ class UsbConnection(val context: Context) {
             serialDevice = null
             connection = null
         }
+    }
+
+    fun startListener() {
+        if (registered) return
+        val usbPermissionFilter = IntentFilter(ACTION_USB_PERMISSION)
+        localBroadcastManager.registerReceiver(usbPermissionReceiver, usbPermissionFilter)
+        // Detach events are sent as a system-wide broadcast
+        val usbDetachedFilter = IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        localBroadcastManager.registerReceiver(usbDetachedReceiver, usbDetachedFilter)
+        registered = true
+        startUsbConnection()
+    }
+
+    fun stopListener() {
+        if (!registered) return
         localBroadcastManager.unregisterReceiver(usbPermissionReceiver)
         localBroadcastManager.unregisterReceiver(usbDetachedReceiver)
+        registered = false
     }
 
     fun send(msg: String) {
