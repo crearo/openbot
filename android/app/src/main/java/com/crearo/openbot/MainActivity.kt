@@ -97,5 +97,8 @@ class MainActivity : AppCompatActivity() {
         // textView.text = "$dpadState\n${textView.text}"
         controlEventForCar.onDpadEvent(dpadState)
         tvInfo.text = "$controlEventForCar"
+        if (!usbConnection.isBusy()) {
+            usbConnection.send("${controlEventForCar.left},${controlEventForCar.right}\n")
+        }
     }
 }
