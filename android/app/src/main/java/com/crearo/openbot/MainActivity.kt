@@ -1,10 +1,16 @@
 package com.crearo.openbot
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.crearo.openbot.controller.ControlEventForCar
 import com.crearo.openbot.controller.Dpad
 import com.crearo.openbot.controller.DpadState
@@ -16,13 +22,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvConnected: TextView
     private val dpadState = DpadState(0f, 0f, 0f, 0f)
     private val controlEventForCar = ControlEventForCar(0f, 0f)
-    private val usbConnection = UsbConnection(applicationContext)
+    private lateinit var usbConnection: UsbConnection
+    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tvInfo = findViewById(R.id.tv_info)
         tvConnected = findViewById(R.id.tv_connected)
+        usbConnection = UsbConnection(applicationContext)
+        localBroadcastManager = LocalBroadcastManager.getInstance(this)
+
+        val intentFilter = IntentFilter()
+        intentFilter.addAction("connection")
+        intentFilter.addAction("data")
+        localBroadcastManager.registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                runOnUiThread {
+                    when (intent?.action) {
+                        "connection" -> tvConnected.text = intent.getStringExtra("action")
+                    }
+                }
+            }
+        }, intentFilter)
     }
 
     override fun onResume() {

@@ -25,7 +25,7 @@ class UsbConnection(val context: Context) {
     private val ACTION_USB_PERMISSION = "UsbConnection.USB_PERMISSION"
 
     private val usbManager: UsbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-    private val mLocalBroadcastManager = LocalBroadcastManager.getInstance(context)
+    private val localBroadcastManager = LocalBroadcastManager.getInstance(context)
     private val usbPermissionIntent = PendingIntent.getBroadcast(this.context, 0, Intent(ACTION_USB_PERMISSION), 0)
     private var connection: UsbDeviceConnection? = null
     private var serialDevice: UsbSerialDevice? = null
@@ -79,10 +79,10 @@ class UsbConnection(val context: Context) {
 
     fun startUsbConnection(): Boolean {
         val usbPermissionFilter = IntentFilter(ACTION_USB_PERMISSION)
-        mLocalBroadcastManager.registerReceiver(usbPermissionReceiver, usbPermissionFilter)
+        localBroadcastManager.registerReceiver(usbPermissionReceiver, usbPermissionFilter)
         // Detach events are sent as a system-wide broadcast
         val usbDetachedFilter = IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        mLocalBroadcastManager.registerReceiver(usbDetachedReceiver, usbDetachedFilter)
+        localBroadcastManager.registerReceiver(usbDetachedReceiver, usbDetachedFilter)
 
         val connectedDevices: Map<String, UsbDevice> = usbManager.deviceList
         if (connectedDevices.isNotEmpty()) {
@@ -117,18 +117,18 @@ class UsbConnection(val context: Context) {
             serialDevice!!.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF)
             serialDevice!!.read(callback)
             Log.i(TAG, "Serial connection opened")
+            localBroadcastManager.sendBroadcast(Broadcast.CONNECTED)
             true
         } else {
             Log.w(TAG, "Cannot open serial connection")
+            localBroadcastManager.sendBroadcast(Broadcast.CONNECTION_FAILED)
             false
         }
     }
 
     private fun onSerialDataReceived(data: String) {
         Log.i(TAG, "Serial data received: $data")
-        /*mLocalBroadcastManager.sendBroadcast(Intent(SensorService.USB_ACTION_DATA_RECEIVED)
-                .putExtra("from", "usb")
-                .putExtra("data", data))*/
+        localBroadcastManager.sendBroadcast(Broadcast.DATA(data))
     }
 
     fun stopUsbConnection() {
@@ -139,8 +139,8 @@ class UsbConnection(val context: Context) {
             serialDevice = null
             connection = null
         }
-        mLocalBroadcastManager.unregisterReceiver(usbPermissionReceiver)
-        mLocalBroadcastManager.unregisterReceiver(usbDetachedReceiver)
+        localBroadcastManager.unregisterReceiver(usbPermissionReceiver)
+        localBroadcastManager.unregisterReceiver(usbDetachedReceiver)
     }
 
     fun send(msg: String) {
