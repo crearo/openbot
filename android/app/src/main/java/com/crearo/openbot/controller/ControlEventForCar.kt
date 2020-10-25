@@ -13,9 +13,9 @@ data class ControlEventForCar(var left: Float, var right: Float) {
 
         // todo this is fragile af.
         if (dpadState.xAxis > 0f) {
-            right *= 0.8f
+            left *= (1 - 0.8f * dpadState.xAxis)
         } else if (dpadState.xAxis < 0f) {
-            left *= 0.8f
+            right *= (1 + 0.8f * dpadState.xAxis)
         }
     }
 
