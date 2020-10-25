@@ -6,8 +6,20 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_pair"
+        android:text="Pair Controller" />
+
     <TextView
-        android:id="@+id/tv_connected"
+        android:id="@+id/tv_controller_connected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Controller Status" />
+
+    <TextView
+        android:id="@+id/tv_usb_connected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Status" />
