@@ -1,8 +1,9 @@
 package com.crearo.openbot.controller
 
+import java.io.Serializable
 import kotlin.math.round
 
-class DpadState(xAxis: Float, var reverse: Float, var gas: Float, var brake: Float) {
+class DpadState(xAxis: Float, var reverse: Float, var gas: Float, var brake: Float) : Serializable {
 
     var xAxis: Float = xAxis
         set(value) {

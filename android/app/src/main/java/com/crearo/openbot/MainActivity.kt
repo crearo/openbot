@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.TextView
@@ -44,6 +45,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }, intentFilter)
+        showTextViewUpdate()
+    }
+
+    private fun showTextViewUpdate() {
+        runOnUiThread {
+            tvInfo.text = "$controlEventForCar"
+        }
+        Handler().postDelayed(this::showTextViewUpdate, 10)
     }
 
     override fun onResume() {
@@ -96,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     private fun onDpadEvent(dpadState: DpadState) {
         // textView.text = "$dpadState\n${textView.text}"
         controlEventForCar.onDpadEvent(dpadState)
-        tvInfo.text = "$controlEventForCar"
+        // tvInfo.text = "$controlEventForCar"
         if (!usbConnection.isBusy()) {
             usbConnection.send("${controlEventForCar.left},${controlEventForCar.right}\n")
         }
